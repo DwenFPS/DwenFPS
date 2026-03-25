@@ -1,11 +1,11 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 -- #######################################################
--- SENİN REKLAM LİNKİN BURAYA EKLENDİ
+-- SENİN REKLAM LİNKİN (DwenFPS)
+local reklamLinkim = "https://work.ink/2pU3/dwenfps" 
 -- #######################################################
-local reklamLinkim = "https://lootdest.org/s?igK1QLVn" 
 
--- 1. ADIM: MANUEL BUTON OLUŞTURMA (KEY GİRİLİNCE SİLİNİR)
+-- 1. ADIM: GET KEY BUTONU SİSTEMİ
 local ScreenGui = Instance.new("ScreenGui")
 local Button = Instance.new("TextButton")
 local UICorner = Instance.new("UICorner")
@@ -30,37 +30,34 @@ UICorner.Parent = Button
 
 Button.MouseButton1Click:Connect(function()
     setclipboard(reklamLinkim)
-    Rayfield:Notify({Title = "Kopyalandı", Content = "Reklam linki panoya kopyalandı! Tarayıcıya yapıştır.", Duration = 5})
+    Rayfield:Notify({Title = "Başarılı", Content = "Reklam linki kopyalandı! Tarayıcıya yapıştır.", Duration = 5})
 end)
 
--- 2. ADIM: RAYFIELD KEY PENCERESİ VE API KONTROLÜ
+-- 2. ADIM: WORK.INK DOĞRULAMA SİSTEMİ
 local Window = Rayfield:CreateWindow({
-   Name = "DwenElChavo Auto Candy Farm",
-   LoadingTitle = "DwenElChavo CandyFarm",
-   LoadingSubtitle = "Key System Aktif",
-   ConfigurationSaving = {Enabled = false},
-   Discord = {Enabled = false},
+   Name = "DwenElChavo | DwenFPS Candy Farm",
+   LoadingTitle = "DwenFPS Yükleniyor...",
+   LoadingSubtitle = "Work.ink Key System",
    KeySystem = true,
    KeySettings = {
-      Title = "DwenElChavo | Key System",
-      Subtitle = "Lütfen anahtarı giriniz",
-      Note = "GET KEY butonuna basarak reklamı geç!",
+      Title = "DwenFPS | Key System",
+      Subtitle = "Anahtar 24 saat geçerlidir",
+      Note = "GET KEY butonuna bas, reklamı geç ve şifreyi al!",
       FileName = "DwenKeyConfig",
       SaveKey = true,
-      GrabKeyFromSite = true,
-      -- SENİN FOTOĞRAFTAKİ API KODUNU BURAYA GÖMDÜM:
-      Key = {"https://api.lootlabs.gg/v1/check-key/a880ca40634ca5ebfa765f9038556470ac41c46f40bab95b047964d25fb3d0de"}
+      GrabKeyFromSite = false,
+      -- SENİN GÖRSELDEKİ (image_cf69a5) DOĞRULAMA LİNKİN:
+      Key = {"https://work.ink/_api/v2/token/isValid/{TOKEN}"} 
    }
 })
 
--- KEY DOĞRUYSA MANUEL BUTONU EKRANDAN SİL
+-- KEY DOĞRUYSA BUTONU SİL
 ScreenGui:Destroy()
 
--- 3. ADIM: HİLE İÇERİĞİ (CANDY FARM)
+-- 3. ADIM: FARM KODLARIN
 local MainTab = Window:CreateTab("Candy Farm", 4483362458)
 local running = false
 local yukseklikAyari = 4 
-local hizAyari = 0.1 
 
 local function enYakinYumurtayiBul()
     local char = game.Players.LocalPlayer.Character
@@ -93,7 +90,6 @@ MainTab:CreateToggle({
                   if hedef then
                       local pos = (hedef:IsA("Model") and hedef:GetModelCFrame().Position) or hedef.Position
                       char.HumanoidRootPart.CFrame = CFrame.new(pos + Vector3.new(0, yukseklikAyari, 0))
-                      task.wait(hizAyari)
                   end
                   task.wait(0.1)
               end
@@ -104,8 +100,8 @@ MainTab:CreateToggle({
 
 MainTab:CreateSlider({
    Name = "Uçuş Yüksekliği",
-   Range = {0, 5},
-   Increment = 0.5,
+   Range = {0, 10},
+   Increment = 1,
    CurrentValue = 4,
    Callback = function(Value) yukseklikAyari = Value end,
 })
