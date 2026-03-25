@@ -1,4 +1,5 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+local player = game.Players.LocalPlayer
 
 -- KEY SİSTEMİ VE PENCERE KURULUMU
 local Window = Rayfield:CreateWindow({
@@ -14,25 +15,24 @@ local Window = Rayfield:CreateWindow({
       Note = "Anahtar 24 saat boyunca geçerlidir.",
       FileName = "DwenKeyConfig",
       SaveKey = true,
-      GrabKeyFromSite = true, -- Lootlabs üzerinden kontrol için TRUE olmalı
-      Key = {"https://api.lootlabs.gg/v1/check-key/a880ca40634ca5ebfa765f9038556470ac41c46f40bab95b047964d25fb3d0de"} 
+      GrabKeyFromSite = true,
+      Key = {"https://api.lootlabs.gg/v1/check-key/a880ca40634ca5ebfa765f9038556470ac41c46f40bab95b047964d25fb3d0de"},
+      -- BUTONU PENCERENİN İÇİNE EKLEYEN KISIM:
+      Actions = {
+            [1] = {
+                Text = "Get Key (Anahtar Al)",
+                Callback = function()
+                    -- BURAYA LOOTLABS REKLAM LİNKİNİ YAPIŞTIR
+                    setclipboard("https://loot-link.com/SANA_OZEL_LINK") 
+                    Rayfield:Notify({Title = "Kopyalandı", Content = "Reklam linki panoya kopyalandı!", Duration = 5})
+                end
+            }
+        }
    }
 })
 
--- Get Key Butonu (Kullanıcı buna basınca senin reklam linkini alacak)
-Window:AddToKeySystem({
-    Name = "Get Key (Anahtar Al)",
-    Description = "Reklamı geç ve sana özel anahtarı üret!",
-    Callback = function()
-        -- BURAYA 3. ADIMDAKİ REKLAM LİNKİNİ GELECEK
-        setclipboard("https://loot-link.com/sana_ozel_link_buraya") 
-        Rayfield:Notify({Title = "Kopyalandı", Content = "Link panoya kopyalandı, tarayıcıya yapıştır!", Duration = 5})
-    end
-})
-
-local MainTab = Window:CreateTab("Candy Farm", 4483362458)
-
 -- DEĞİŞKENLER
+local MainTab = Window:CreateTab("Candy Farm", 4483362458)
 local running = false
 local antiAfkEnabled = true
 local startPos = nil
@@ -51,7 +51,7 @@ end)
 
 -- GHOST VE BULMA FONKSİYONLARI
 local function ghostMode(state)
-    local char = game.Players.LocalPlayer.Character
+    local char = player.Character
     if not char or not char:FindFirstChild("HumanoidRootPart") then return end
     if state then
         for _, v in pairs(char:GetDescendants()) do
@@ -80,7 +80,7 @@ local function ghostMode(state)
 end
 
 local function enYakinYumurtayiBul()
-    local char = game.Players.LocalPlayer.Character
+    local char = player.Character
     if not char or not char:FindFirstChild("HumanoidRootPart") then return nil end
     local enYakin = nil
     local enKisaMesafe = math.huge
@@ -108,7 +108,7 @@ MainTab:CreateToggle({
    Flag = "FarmToggle",
    Callback = function(Value)
       running = Value
-      local char = game.Players.LocalPlayer.Character
+      local char = player.Character
       if running then 
           baslangicZamani = os.time()
           if char and char:FindFirstChild("HumanoidRootPart") then
