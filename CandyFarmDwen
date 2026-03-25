@@ -1,21 +1,17 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
--- ##########################################
--- 1. ADIM: REKLAM LİNKİNİ BURAYA YAPIŞTIR
--- ##########################################
-local lootLink = "https://loot-link.com/SANA_OZEL_LINK" 
+-- #######################################################
+-- SENİN REKLAM LİNKİN BURAYA EKLENDİ
+-- #######################################################
+local reklamLinkim = "https://lootdest.org/s?igK1QLVn" 
 
--- ##########################################
--- 2. ADIM: MANUEL GET KEY BUTONU (PROFESYONEL)
--- ##########################################
+-- 1. ADIM: MANUEL BUTON OLUŞTURMA (KEY GİRİLİNCE SİLİNİR)
 local ScreenGui = Instance.new("ScreenGui")
 local Button = Instance.new("TextButton")
 local UICorner = Instance.new("UICorner")
-local UIStroke = Instance.new("UIStroke")
 
 ScreenGui.Name = "DwenGetKeyGui"
 ScreenGui.Parent = game.CoreGui
-ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 ScreenGui.DisplayOrder = 999 
 
 Button.Name = "GetKeyButton"
@@ -26,24 +22,18 @@ Button.Size = UDim2.new(0, 120, 0, 30)
 Button.Font = Enum.Font.GothamBold
 Button.Text = "GET KEY"
 Button.TextColor3 = Color3.fromRGB(255, 255, 255)
-Button.TextSize = 14.000
+Button.TextSize = 14
 Button.AutoButtonColor = true
 
 UICorner.CornerRadius = UDim.new(0, 6)
 UICorner.Parent = Button
 
-UIStroke.Color = Color3.fromRGB(100, 100, 100)
-UIStroke.Thickness = 1
-UIStroke.Parent = Button
-
 Button.MouseButton1Click:Connect(function()
-    setclipboard(lootLink)
-    Rayfield:Notify({Title = "Başarılı", Content = "Reklam linki panoya kopyalandı!", Duration = 5})
+    setclipboard(reklamLinkim)
+    Rayfield:Notify({Title = "Kopyalandı", Content = "Reklam linki panoya kopyalandı! Tarayıcıya yapıştır.", Duration = 5})
 end)
 
--- ##########################################
--- 3. ADIM: RAYFIELD PENCERE VE KEY SİSTEMİ
--- ##########################################
+-- 2. ADIM: RAYFIELD KEY PENCERESİ VE API KONTROLÜ
 local Window = Rayfield:CreateWindow({
    Name = "DwenElChavo Auto Candy Farm",
    LoadingTitle = "DwenElChavo CandyFarm",
@@ -53,77 +43,31 @@ local Window = Rayfield:CreateWindow({
    KeySystem = true,
    KeySettings = {
       Title = "DwenElChavo | Key System",
-      Subtitle = "Lütfen anahtarı aşağıya giriniz",
+      Subtitle = "Lütfen anahtarı giriniz",
       Note = "GET KEY butonuna basarak reklamı geç!",
       FileName = "DwenKeyConfig",
       SaveKey = true,
       GrabKeyFromSite = true,
+      -- SENİN FOTOĞRAFTAKİ API KODUNU BURAYA GÖMDÜM:
       Key = {"https://api.lootlabs.gg/v1/check-key/a880ca40634ca5ebfa765f9038556470ac41c46f40bab95b047964d25fb3d0de"}
    }
 })
 
--- KEY DOĞRU GİRİLDİĞİNDE BUTONU YOK ET
+-- KEY DOĞRUYSA MANUEL BUTONU EKRANDAN SİL
 ScreenGui:Destroy()
 
--- ##########################################
--- 4. ADIM: HİLE İÇERİĞİ VE FONKSİYONLAR
--- ##########################################
+-- 3. ADIM: HİLE İÇERİĞİ (CANDY FARM)
 local MainTab = Window:CreateTab("Candy Farm", 4483362458)
 local running = false
-local antiAfkEnabled = true
-local startPos = nil
-local baslangicZamani = os.time()
 local yukseklikAyari = 4 
 local hizAyari = 0.1 
 
--- ANTI-AFK SİSTEMİ
-local VirtualUser = game:GetService("VirtualUser")
-game:GetService("Players").LocalPlayer.Idled:Connect(function()
-    if antiAfkEnabled then
-        VirtualUser:CaptureController()
-        VirtualUser:ClickButton2(Vector2.new())
-    end
-end)
-
--- GHOST MODU (DUVARLARDAN GEÇME)
-local function ghostMode(state)
-    local char = game.Players.LocalPlayer.Character
-    if not char or not char:FindFirstChild("HumanoidRootPart") then return end
-    if state then
-        for _, v in pairs(char:GetDescendants()) do
-            if v:IsA("BasePart") then v.CanCollide = false v.CanTouch = false end
-        end
-        local bp = char.HumanoidRootPart:FindFirstChild("DwenFloat") or Instance.new("BodyVelocity")
-        bp.Name = "DwenFloat"
-        bp.Parent = char.HumanoidRootPart
-        bp.Velocity = Vector3.new(0, 0, 0)
-        bp.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
-        
-        local bg = char.HumanoidRootPart:FindFirstChild("DwenGyro") or Instance.new("BodyGyro")
-        bg.Name = "DwenGyro"
-        bg.Parent = char.HumanoidRootPart
-        bg.MaxTorque = Vector3.new(math.huge, math.huge, math.huge)
-        bg.CFrame = startPos or char.HumanoidRootPart.CFrame
-    else
-        if not running then
-            if char.HumanoidRootPart:FindFirstChild("DwenFloat") then char.HumanoidRootPart.DwenFloat:Destroy() end
-            if char.HumanoidRootPart:FindFirstChild("DwenGyro") then char.HumanoidRootPart.DwenGyro:Destroy() end
-            for _, v in pairs(char:GetDescendants()) do
-                if v:IsA("BasePart") then v.CanCollide = true v.CanTouch = true end
-            end
-        end
-    end
-end
-
--- EN YAKIN CANDY BULUCU
 local function enYakinYumurtayiBul()
     local char = game.Players.LocalPlayer.Character
     if not char or not char:FindFirstChild("HumanoidRootPart") then return nil end
     local enYakin = nil
     local enKisaMesafe = math.huge
-    local eggs = workspace:GetDescendants()
-    for i = 1, #eggs do
-        local v = eggs[i]
+    for _, v in pairs(workspace:GetDescendants()) do
         if v.Name == "CandyEgg" and (v:IsA("BasePart") or v:IsA("Model")) then
             local pos = (v:IsA("Model") and v:GetModelCFrame().Position) or v.Position
             local mesafe = (char.HumanoidRootPart.Position - pos).Magnitude
@@ -136,49 +80,28 @@ local function enYakinYumurtayiBul()
     return enYakin
 end
 
--- ARAYÜZ KONTROLLERİ
-MainTab:CreateSection("Farm Kontrol")
-
 MainTab:CreateToggle({
-   Name = "Farmı Başlat (Beton Modu)",
+   Name = "Candy AutoFarm",
    CurrentValue = false,
    Callback = function(Value)
       running = Value
       local char = game.Players.LocalPlayer.Character
-      if running then 
-          baslangicZamani = os.time()
-          if char and char:FindFirstChild("HumanoidRootPart") then
-              startPos = char.HumanoidRootPart.CFrame * CFrame.new(0, 1, 0)
-          end
+      if running and char and char:FindFirstChild("HumanoidRootPart") then 
           task.spawn(function()
               while running do
                   local hedef = enYakinYumurtayiBul()
-                  if hedef and char and char:FindFirstChild("HumanoidRootPart") then
-                      ghostMode(true)
-                      local hedefCFrame = (hedef:IsA("Model") and hedef:GetModelCFrame()) or hedef.CFrame
-                      char.HumanoidRootPart.CFrame = CFrame.new(hedefCFrame.Position + Vector3.new(0, yukseklikAyari, 0)) * startPos.Rotation
-                      task.wait(hizAyari) 
-                  else
-                      if startPos then ghostMode(true) char.HumanoidRootPart.CFrame = startPos end
-                      task.wait(1) 
+                  if hedef then
+                      local pos = (hedef:IsA("Model") and hedef:GetModelCFrame().Position) or hedef.Position
+                      char.HumanoidRootPart.CFrame = CFrame.new(pos + Vector3.new(0, yukseklikAyari, 0))
+                      task.wait(hizAyari)
                   end
                   task.wait(0.1)
               end
-              ghostMode(false)
           end)
-      else
-          ghostMode(false)
       end
    end,
 })
 
-MainTab:CreateToggle({
-   Name = "Anti-AFK Sistemi",
-   CurrentValue = true,
-   Callback = function(Value) antiAfkEnabled = Value end,
-})
-
-MainTab:CreateSection("İnce Ayarlar")
 MainTab:CreateSlider({
    Name = "Uçuş Yüksekliği",
    Range = {0, 5},
@@ -186,24 +109,3 @@ MainTab:CreateSlider({
    CurrentValue = 4,
    Callback = function(Value) yukseklikAyari = Value end,
 })
-
-MainTab:CreateSlider({
-   Name = "Toplama Hızı",
-   Range = {0.1, 2},
-   Increment = 0.1,
-   CurrentValue = 0.1,
-   Callback = function(Value) hizAyari = Value end,
-})
-
-MainTab:CreateSection("Süre Takibi")
-local SureLabel = MainTab:CreateLabel("Mesai Süresi: 00:00:00")
-
-task.spawn(function()
-    while true do
-        if running then
-            local s = os.time() - baslangicZamani
-            SureLabel:Set(string.format("Mesai Süresi: %02d:%02d:%02d", math.floor(s/3600), math.floor(s/60)%60, s%60))
-        end
-        task.wait(1)
-    end
-end)
