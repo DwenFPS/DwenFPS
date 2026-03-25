@@ -1,37 +1,73 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
-local player = game.Players.LocalPlayer
 
--- KEY SİSTEMİ VE PENCERE KURULUMU
+-- ##########################################
+-- 1. ADIM: REKLAM LİNKİNİ BURAYA YAPIŞTIR
+-- ##########################################
+local lootLink = "https://loot-link.com/SANA_OZEL_LINK" 
+
+-- ##########################################
+-- 2. ADIM: MANUEL GET KEY BUTONU (PROFESYONEL)
+-- ##########################################
+local ScreenGui = Instance.new("ScreenGui")
+local Button = Instance.new("TextButton")
+local UICorner = Instance.new("UICorner")
+local UIStroke = Instance.new("UIStroke")
+
+ScreenGui.Name = "DwenGetKeyGui"
+ScreenGui.Parent = game.CoreGui
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+ScreenGui.DisplayOrder = 999 
+
+Button.Name = "GetKeyButton"
+Button.Parent = ScreenGui
+Button.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+Button.Position = UDim2.new(0.5, -60, 0.5, 65) 
+Button.Size = UDim2.new(0, 120, 0, 30)
+Button.Font = Enum.Font.GothamBold
+Button.Text = "GET KEY"
+Button.TextColor3 = Color3.fromRGB(255, 255, 255)
+Button.TextSize = 14.000
+Button.AutoButtonColor = true
+
+UICorner.CornerRadius = UDim.new(0, 6)
+UICorner.Parent = Button
+
+UIStroke.Color = Color3.fromRGB(100, 100, 100)
+UIStroke.Thickness = 1
+UIStroke.Parent = Button
+
+Button.MouseButton1Click:Connect(function()
+    setclipboard(lootLink)
+    Rayfield:Notify({Title = "Başarılı", Content = "Reklam linki panoya kopyalandı!", Duration = 5})
+end)
+
+-- ##########################################
+-- 3. ADIM: RAYFIELD PENCERE VE KEY SİSTEMİ
+-- ##########################################
 local Window = Rayfield:CreateWindow({
    Name = "DwenElChavo Auto Candy Farm",
    LoadingTitle = "DwenElChavo CandyFarm",
-   LoadingSubtitle = "Key System: Lootlabs",
+   LoadingSubtitle = "Key System Aktif",
    ConfigurationSaving = {Enabled = false},
    Discord = {Enabled = false},
    KeySystem = true,
    KeySettings = {
       Title = "DwenElChavo | Key System",
-      Subtitle = "Devam etmek için anahtar almalısınız",
-      Note = "Anahtar 24 saat boyunca geçerlidir.",
+      Subtitle = "Lütfen anahtarı aşağıya giriniz",
+      Note = "GET KEY butonuna basarak reklamı geç!",
       FileName = "DwenKeyConfig",
       SaveKey = true,
       GrabKeyFromSite = true,
-      Key = {"https://api.lootlabs.gg/v1/check-key/a880ca40634ca5ebfa765f9038556470ac41c46f40bab95b047964d25fb3d0de"},
-      -- BUTONU PENCERENİN İÇİNE EKLEYEN KISIM:
-      Actions = {
-            [1] = {
-                Text = "Get Key (Anahtar Al)",
-                Callback = function()
-                    -- BURAYA LOOTLABS REKLAM LİNKİNİ YAPIŞTIR
-                    setclipboard("https://loot-link.com/SANA_OZEL_LINK") 
-                    Rayfield:Notify({Title = "Kopyalandı", Content = "Reklam linki panoya kopyalandı!", Duration = 5})
-                end
-            }
-        }
+      Key = {"https://api.lootlabs.gg/v1/check-key/a880ca40634ca5ebfa765f9038556470ac41c46f40bab95b047964d25fb3d0de"}
    }
 })
 
--- DEĞİŞKENLER
+-- KEY DOĞRU GİRİLDİĞİNDE BUTONU YOK ET
+ScreenGui:Destroy()
+
+-- ##########################################
+-- 4. ADIM: HİLE İÇERİĞİ VE FONKSİYONLAR
+-- ##########################################
 local MainTab = Window:CreateTab("Candy Farm", 4483362458)
 local running = false
 local antiAfkEnabled = true
@@ -49,9 +85,9 @@ game:GetService("Players").LocalPlayer.Idled:Connect(function()
     end
 end)
 
--- GHOST VE BULMA FONKSİYONLARI
+-- GHOST MODU (DUVARLARDAN GEÇME)
 local function ghostMode(state)
-    local char = player.Character
+    local char = game.Players.LocalPlayer.Character
     if not char or not char:FindFirstChild("HumanoidRootPart") then return end
     if state then
         for _, v in pairs(char:GetDescendants()) do
@@ -79,8 +115,9 @@ local function ghostMode(state)
     end
 end
 
+-- EN YAKIN CANDY BULUCU
 local function enYakinYumurtayiBul()
-    local char = player.Character
+    local char = game.Players.LocalPlayer.Character
     if not char or not char:FindFirstChild("HumanoidRootPart") then return nil end
     local enYakin = nil
     local enKisaMesafe = math.huge
@@ -99,16 +136,15 @@ local function enYakinYumurtayiBul()
     return enYakin
 end
 
---- ARAYÜZ ELEMANLARI ---
+-- ARAYÜZ KONTROLLERİ
 MainTab:CreateSection("Farm Kontrol")
 
 MainTab:CreateToggle({
    Name = "Farmı Başlat (Beton Modu)",
    CurrentValue = false,
-   Flag = "FarmToggle",
    Callback = function(Value)
       running = Value
-      local char = player.Character
+      local char = game.Players.LocalPlayer.Character
       if running then 
           baslangicZamani = os.time()
           if char and char:FindFirstChild("HumanoidRootPart") then
@@ -123,10 +159,7 @@ MainTab:CreateToggle({
                       char.HumanoidRootPart.CFrame = CFrame.new(hedefCFrame.Position + Vector3.new(0, yukseklikAyari, 0)) * startPos.Rotation
                       task.wait(hizAyari) 
                   else
-                      if startPos then
-                          ghostMode(true)
-                          char.HumanoidRootPart.CFrame = startPos
-                      end
+                      if startPos then ghostMode(true) char.HumanoidRootPart.CFrame = startPos end
                       task.wait(1) 
                   end
                   task.wait(0.1)
@@ -142,29 +175,23 @@ MainTab:CreateToggle({
 MainTab:CreateToggle({
    Name = "Anti-AFK Sistemi",
    CurrentValue = true,
-   Flag = "AntiAfkToggle",
    Callback = function(Value) antiAfkEnabled = Value end,
 })
 
 MainTab:CreateSection("İnce Ayarlar")
-
 MainTab:CreateSlider({
-   Name = "Uçuş Yüksekliği (0-5)",
+   Name = "Uçuş Yüksekliği",
    Range = {0, 5},
    Increment = 0.5,
-   Suffix = " Birim",
    CurrentValue = 4,
-   Flag = "HeightSlider",
    Callback = function(Value) yukseklikAyari = Value end,
 })
 
 MainTab:CreateSlider({
-   Name = "Toplama Hızı (Bekleme)",
+   Name = "Toplama Hızı",
    Range = {0.1, 2},
    Increment = 0.1,
-   Suffix = " Saniye",
    CurrentValue = 0.1,
-   Flag = "SpeedSlider",
    Callback = function(Value) hizAyari = Value end,
 })
 
