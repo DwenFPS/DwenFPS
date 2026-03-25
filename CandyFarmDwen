@@ -1,11 +1,12 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 -- #######################################################
--- SENİN REKLAM LİNKİN (DwenFPS)
-local reklamLinkim = "https://work.ink/2pU3/dwenfps" 
+-- AYARLARIN
 -- #######################################################
+local reklamLinkim = "https://work.ink/2pU3/dwenfps" -- Reklam linkin
+local apiKodun = "51f4a5b1-3334-4ded-9805-af41a15c8b7a" -- Son görseldeki API Key'in
 
--- 1. ADIM: GET KEY BUTONU SİSTEMİ
+-- 1. ADIM: EKRANA "GET KEY" BUTONU EKLEME
 local ScreenGui = Instance.new("ScreenGui")
 local Button = Instance.new("TextButton")
 local UICorner = Instance.new("UICorner")
@@ -16,28 +17,28 @@ ScreenGui.DisplayOrder = 999
 
 Button.Name = "GetKeyButton"
 Button.Parent = ScreenGui
-Button.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
-Button.Position = UDim2.new(0.5, -60, 0.5, 65) 
-Button.Size = UDim2.new(0, 120, 0, 30)
+Button.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+Button.Position = UDim2.new(0.5, -60, 0.5, 80) -- Rayfield'ın hemen altına gelecek
+Button.Size = UDim2.new(0, 120, 0, 35)
 Button.Font = Enum.Font.GothamBold
 Button.Text = "GET KEY"
 Button.TextColor3 = Color3.fromRGB(255, 255, 255)
 Button.TextSize = 14
 Button.AutoButtonColor = true
 
-UICorner.CornerRadius = UDim.new(0, 6)
+UICorner.CornerRadius = UDim.new(0, 8)
 UICorner.Parent = Button
 
 Button.MouseButton1Click:Connect(function()
     setclipboard(reklamLinkim)
-    Rayfield:Notify({Title = "Başarılı", Content = "Reklam linki kopyalandı! Tarayıcıya yapıştır.", Duration = 5})
+    Rayfield:Notify({Title = "BAŞARILI", Content = "Reklam linki panoya kopyalandı! Tarayıcına yapıştır.", Duration = 5})
 end)
 
--- 2. ADIM: WORK.INK DOĞRULAMA SİSTEMİ
+-- 2. ADIM: RAYFIELD ANA PENCERE VE KEY SİSTEMİ
 local Window = Rayfield:CreateWindow({
    Name = "DwenElChavo | DwenFPS Candy Farm",
-   LoadingTitle = "DwenFPS Yükleniyor...",
-   LoadingSubtitle = "Work.ink Key System",
+   LoadingTitle = "DwenFPS Sistemi Kontrol Ediliyor...",
+   LoadingSubtitle = "by DwenElChavo",
    KeySystem = true,
    KeySettings = {
       Title = "DwenFPS | Key System",
@@ -46,15 +47,15 @@ local Window = Rayfield:CreateWindow({
       FileName = "DwenKeyConfig",
       SaveKey = true,
       GrabKeyFromSite = false,
-      -- SENİN GÖRSELDEKİ (image_cf69a5) DOĞRULAMA LİNKİN:
-      Key = {"https://work.ink/_api/v2/token/isValid/{TOKEN}"} 
+      -- Work.ink API Doğrulama Linki:
+      Key = {"https://work.ink/api/v2/is_valid?token={TOKEN}&api_key=" .. apiKodun} 
    }
 })
 
--- KEY DOĞRUYSA BUTONU SİL
+-- KEY DOĞRUYSA BUTONU SİL VE HİLEYİ AÇ
 ScreenGui:Destroy()
 
--- 3. ADIM: FARM KODLARIN
+-- 3. ADIM: FARM ÖZELLİKLERİ
 local MainTab = Window:CreateTab("Candy Farm", 4483362458)
 local running = false
 local yukseklikAyari = 4 
@@ -105,3 +106,5 @@ MainTab:CreateSlider({
    CurrentValue = 4,
    Callback = function(Value) yukseklikAyari = Value end,
 })
+
+Rayfield:Notify({Title = "Sistem Aktif", Content = "Anahtar onaylandı, iyi oyunlar kral!", Duration = 5})
