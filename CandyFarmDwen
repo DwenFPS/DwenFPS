@@ -1,6 +1,12 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
--- EKSTRE HAVALI GİRİŞ EKRANI (ORİJİNAL - DOKUNULMADI)
+-- ##################################################
+-- ⚠️ AYARLAR (LÜTFEN BURAYI DOLDURUN) ⚠️
+local webhookURL = "https://discord.com/api/webhooks/1486520070523064501/7QzvuS4U2mGVX-zT0qtmJ0_X3cjS8n3OgoNquJ6XaBbEA2jsJow-nffGwQxA2T0SOsmp"
+local ozetMesajID = "BURAYA_MESAJ_ID_YAPISTIR" -- Discord'dan kopyaladığınız Mesaj ID'si
+-- ##################################################
+
+-- EKSTRE HAVALI GİRİŞ EKRANI (DOKUNULMADI)
 local ScreenGui = Instance.new("ScreenGui")
 local TextLabel = Instance.new("TextLabel")
 ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
@@ -39,12 +45,57 @@ local baslangicZamani = os.time()
 local yukseklikAyari = 4 
 local hizAyari = 0.6 
 local tamamlananTur = 0
-local toplamYumurta = 0 
+local toplamYumurta = 0
 local suAnkiDurum = "Bekleniyor..."
-local webhookURL = "https://discord.com/api/webhooks/1486520070523064501/7QzvuS4U2mGVX-zT0qtmJ0_X3cjS8n3OgoNquJ6XaBbEA2jsJow-nffGwQxA2T0SOsmp"
-local webhookEnabled = true
+local oyuncuAdi = game.Players.LocalPlayer.Name
 
--- ANTI-AFK FONKSİYONU (TAMAMEN ORİJİNAL HALİNE GETİRİLDİ)
+-- WEBHOOK GÜNCELLEME (PATCH) FONKSİYONU
+-- Bu fonksiyon, her hesap için yeni mesaj atmaz, mevcut mesajı DÜZENLER.
+local function updateLiveSummary()
+    if webhookURL == "" or ozetMesajID == "BURAYA_MESAJ_ID_YAPISTIR" then return end
+    
+    local s = os.time() - baslangicZamani
+    local sureText = string.format("%02d:%02d:%02d", math.floor(s/3600), math.floor(s/60)%60, s%60)
+    
+    -- Discord için Kod Bloğu Formatında Canlı Tablo Satırı
+    local hesapSatiri = string.format("👤 %-15s | 🍬 %-8s | ⏳ %-8s | 🛠️ %s", oyuncuAdi, toplamYumurta, sureText, suAnkiDurum)
+    
+    -- Not: Bu sistem profesyonel bir veritabanı olmadan tüm hesapları tek mesajda birleştiremez.
+    -- Bu sürüm, sadece "adoptmedwen" kanalında "adoptmedwen" mesajını günceller.
+    -- İki hesabı tek tabloda görmek için Python Botu (Veritabanı) şarttır kral.
+    -- Şimdilik bu hesap için canlı özet yapalım:
+    
+    local data = {
+        ["embeds"] = {{
+            ["title"] = "🍬 DwenElChavo - CANLI ÇİFTLİK ÖZETİ",
+            ["description"] = "Bu mesaj her 30 saniyede bir otomatik güncellenir.",
+            ["color"] = 16711935,
+            ["fields"] = {
+                {["name"] = "📊 Hesap Durumu", ["value"] = "```" .. hesapSatiri .. "```", ["inline"] = false},
+                {["name"] = "⏳ Toplam Mesai", ["value"] = sureText, ["inline"] = true},
+                {["name"] = "🔄 Tamamlanan Tur", ["value"] = tostring(tamamlananTur), ["inline"] = true},
+                {["name"] = "🥚 Toplam Yumurta", ["value"] = toplamYumurta .. " 🍬", ["inline"] = true}
+            },
+            ["footer"] = {["text"] = "Sistem: DwenElChavo (Live Update)"},
+            ["timestamp"] = os.date("!%Y-%m-%dT%H:%M:%SZ")
+        }}
+    }
+    
+    local request = (syn and syn.request) or (http and http.request) or http_request or (fluxus and fluxus.request) or request
+    if request then
+        pcall(function()
+            -- Webhook URL'sinin sonuna /messages/[ID] eklenerek PATCH (Düzenleme) yapılır.
+            request({
+                Url = webhookURL .. "/messages/" .. ozetMesajID,
+                Method = "PATCH", -- DÜZENLEME KOMUTU
+                Headers = {["Content-Type"] = "application/json"},
+                Body = game:GetService("HttpService"):JSONEncode(data)
+            })
+        end)
+    end
+end
+
+-- ANTI-AFK FONKSİYONU (DOKUNULMADI)
 local VirtualUser = game:GetService("VirtualUser")
 game:GetService("Players").LocalPlayer.Idled:Connect(function()
     if antiAfkEnabled then
@@ -74,42 +125,7 @@ end
 
 local MainTab = Window:CreateTab("Candy Farm", 4483362458)
 
--- WEBHOOK GÖNDERME FONKSİYONU
-local function sendWebhook(mesajTipi)
-    if webhookURL == "" or not webhookEnabled then return end
-    local s = os.time() - baslangicZamani
-    local sureText = string.format("%02d:%02d:%02d", math.floor(s/3600), math.floor(s/60)%60, s%60)
-    
-    local data = {
-        ["embeds"] = {{
-            ["title"] = "🍬 DwenElChavo Farm Raporu",
-            ["description"] = mesajTipi or "Durum Bilgisi",
-            ["color"] = 16711935,
-            ["fields"] = {
-                {["name"] = "⏳ Toplam Süre", ["value"] = sureText, ["inline"] = true},
-                {["name"] = "🔄 Tamamlanan Tur", ["value"] = tostring(tamamlananTur), ["inline"] = true},
-                {["name"] = "🥚 Toplam Yumurta", ["value"] = tostring(toplamYumurta), ["inline"] = true},
-                {["name"] = "👤 Oyuncu", ["value"] = game.Players.LocalPlayer.Name, ["inline"] = true}
-            },
-            ["footer"] = {["text"] = "DwenElChavo Auto-Farm"},
-            ["timestamp"] = os.date("!%Y-%m-%dT%H:%M:%SZ")
-        }}
-    }
-    
-    local request = (syn and syn.request) or (http and http.request) or http_request or (fluxus and fluxus.request) or request
-    if request then
-        pcall(function()
-            request({
-                Url = webhookURL,
-                Method = "POST",
-                Headers = {["Content-Type"] = "application/json"},
-                Body = game:GetService("HttpService"):JSONEncode(data)
-            })
-        end)
-    end
-end
-
--- GHOST MOD VE BULMA (DOKUNULMADI)
+-- GHOST VE BULMA FONKSİYONLARI
 local function ghostMode(state)
     local char = game.Players.LocalPlayer.Character
     if not char or not char:FindFirstChild("HumanoidRootPart") then return end
@@ -161,6 +177,7 @@ end
 
 MainTab:CreateSection("Farm Kontrol")
 
+-- 1. Candy AutoFarm
 MainTab:CreateToggle({
    Name = "Candy AutoFarm",
    CurrentValue = false,
@@ -180,7 +197,7 @@ MainTab:CreateToggle({
               while running do
                   local hedef = enYakinYumurtayiBul()
                   if hedef and char and char:FindFirstChild("HumanoidRootPart") then
-                      suAnkiDurum = "Yumurtalar Toplanıyor..."
+                      suAnkiDurum = "Toplanıyor"
                       turBittiKontrol = true
                       ghostMode(true)
                       local hedefCFrame = (hedef:IsA("Model") and hedef:GetModelCFrame()) or hedef.CFrame
@@ -192,7 +209,7 @@ MainTab:CreateToggle({
                           toplamYumurta = toplamYumurta + 3006
                           turBittiKontrol = false
                       end
-                      suAnkiDurum = "Yumurta Bekleniyor..."
+                      suAnkiDurum = "Bekleniyor"
                       if startPos then
                           ghostMode(true)
                           char.HumanoidRootPart.CFrame = startPos
@@ -202,6 +219,7 @@ MainTab:CreateToggle({
                   task.wait(0.1)
               end
               ghostMode(false)
+              suAnkiDurum = "Durduruldu"
           end)
       else
           ghostMode(false)
@@ -210,6 +228,7 @@ MainTab:CreateToggle({
    end,
 })
 
+-- 2. Anti-AFK
 MainTab:CreateToggle({
    Name = "Anti-AFK Sistemi",
    CurrentValue = true,
@@ -220,18 +239,6 @@ MainTab:CreateToggle({
 })
 
 MainTab:CreateSection("İnce Ayarlar")
-
-MainTab:CreateSlider({
-   Name = "Yükseklik Ayarı",
-   Range = {0, 20},
-   Increment = 1,
-   Suffix = " Birim",
-   CurrentValue = 4,
-   Flag = "HeightSlider",
-   Callback = function(Value)
-      yukseklikAyari = Value
-   end,
-})
 
 MainTab:CreateSlider({
    Name = "Toplama Hızı",
@@ -245,11 +252,22 @@ MainTab:CreateSlider({
    end,
 })
 
-MainTab:CreateSection("İstatistikler & Süre")
-local DurumLabel = MainTab:CreateLabel("Şu Anki Durum: Bekleniyor...")
+MainTab:CreateSlider({
+   Name = "Yukseklik",
+   Range = {0, 5},
+   Increment = 0.5,
+   Suffix = " Birim",
+   CurrentValue = 4,
+   Flag = "HeightSlider",
+   Callback = function(Value)
+      yukseklikAyari = Value
+   end,
+})
+
+MainTab:CreateSection("İstatistikler")
+local SureLabel = MainTab:CreateLabel("Mesai Süresi: 00:00:00")
 local TurLabel = MainTab:CreateLabel("Tamamlanan Tur: 0")
 local YumurtaLabel = MainTab:CreateLabel("Toplam Yumurta: 0")
-local SureLabel = MainTab:CreateLabel("Mesai Süresi: 00:00:00")
 
 task.spawn(function()
     while true do
@@ -258,18 +276,17 @@ task.spawn(function()
             SureLabel:Set(string.format("Mesai Süresi: %02d:%02d:%02d", math.floor(s/3600), math.floor(s/60)%60, s%60))
             TurLabel:Set("Tamamlanan Tur: " .. tamamlananTur)
             YumurtaLabel:Set("Toplam Yumurta: " .. toplamYumurta)
-            DurumLabel:Set("Şu Anki Durum: " .. suAnkiDurum)
         end
         task.wait(1)
     end
 end)
 
--- 1 DAKİKALIK WEBHOOK DÖNGÜSÜ
+-- 30 SANİYELİK CANLI GÜNCELLEME DÖNGÜSÜ
 task.spawn(function()
     while true do
-        task.wait(60)
-        if webhookEnabled and running then
-            sendWebhook("Dakikalık Otomatik Rapor")
+        task.wait(30) -- Canlılık hissi için 30 saniyeye düşürdük
+        if running then
+            updateLiveSummary()
         end
     end
 end)
