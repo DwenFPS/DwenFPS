@@ -31,7 +31,7 @@ end)
 
 task.wait(3)
 
--- DEĞİŞKENLER (SENİN URL'N GÖMÜLDÜ)
+-- DEĞİŞKENLER (KATLANAN SAYAÇ EKLENDİ)
 local running = false
 local antiAfkEnabled = true 
 local startPos = nil
@@ -39,6 +39,7 @@ local baslangicZamani = os.time()
 local yukseklikAyari = 4 
 local hizAyari = 0.6 
 local tamamlananTur = 0
+local toplamYumurta = 0 -- Yeni sayaç
 local suAnkiDurum = "Bekleniyor..."
 local webhookURL = "https://discord.com/api/webhooks/1486520070523064501/7QzvuS4U2mGVX-zT0qtmJ0_X3cjS8n3OgoNquJ6XaBbEA2jsJow-nffGwQxA2T0SOsmp"
 local webhookEnabled = true
@@ -72,7 +73,7 @@ end
 
 local MainTab = Window:CreateTab("Candy Farm", 4483362458)
 
--- WEBHOOK GÖNDERME FONKSİYONU
+-- WEBHOOK GÖNDERME FONKSİYONU (YUMURTA SAYISI EKLENDİ)
 local function sendWebhook(mesajTipi)
     if webhookURL == "" or not webhookEnabled then return end
     local s = os.time() - baslangicZamani
@@ -81,11 +82,12 @@ local function sendWebhook(mesajTipi)
     local data = {
         ["embeds"] = {{
             ["title"] = "🍬 DwenElChavo Farm Raporu",
-            ["description"] = mesajTipi or "1 Dakikalık Otomatik Durum Bilgisi",
+            ["description"] = mesajTipi or "Durum Bilgisi",
             ["color"] = 16711935,
             ["fields"] = {
                 {["name"] = "⏳ Toplam Süre", ["value"] = sureText, ["inline"] = true},
                 {["name"] = "🔄 Tamamlanan Tur", ["value"] = tostring(tamamlananTur), ["inline"] = true},
+                {["name"] = "🥚 Toplam Yumurta", ["value"] = tostring(toplamYumurta), ["inline"] = true},
                 {["name"] = "👤 Oyuncu", ["value"] = game.Players.LocalPlayer.Name, ["inline"] = true}
             },
             ["footer"] = {["text"] = "DwenElChavo Auto-Farm"},
@@ -158,7 +160,7 @@ end
 
 MainTab:CreateSection("Farm Kontrol")
 
--- 1. Candy AutoFarm
+-- 1. Candy AutoFarm (KATLANAN SAYAÇ MANTIĞI)
 MainTab:CreateToggle({
    Name = "Candy AutoFarm",
    CurrentValue = false,
@@ -187,8 +189,9 @@ MainTab:CreateToggle({
                   else
                       if turBittiKontrol then
                           tamamlananTur = tamamlananTur + 1
+                          toplamYumurta = toplamYumurta + 3006 -- HER TURDA 3006 KATLANARAK GİDER
                           turBittiKontrol = false
-                          Rayfield:Notify({Title = "Sistem", Content = "Bir tur temizlendi!", Duration = 3})
+                          Rayfield:Notify({Title = "Sistem", Content = "Tur Bitti: +3006 Yumurta!", Duration = 3})
                       end
                       suAnkiDurum = "Yumurta Bekleniyor..."
                       if startPos then
@@ -208,16 +211,19 @@ MainTab:CreateToggle({
    end,
 })
 
-MainTab:CreateToggle({
-   Name = "Anti-AFK Sistemi",
-   CurrentValue = true,
-   Flag = "AntiAfkToggle",
+MainTab:CreateSection("İnce Ayarlar")
+
+MainTab:CreateSlider({
+   Name = "Yükseklik Ayarı",
+   Range = {0, 20},
+   Increment = 1,
+   Suffix = " Birim",
+   CurrentValue = 4,
+   Flag = "HeightSlider",
    Callback = function(Value)
-      antiAfkEnabled = Value
+      yukseklikAyari = Value
    end,
 })
-
-MainTab:CreateSection("İnce Ayarlar")
 
 MainTab:CreateSlider({
    Name = "Toplama Hızı",
@@ -234,6 +240,7 @@ MainTab:CreateSlider({
 MainTab:CreateSection("İstatistikler & Süre")
 local DurumLabel = MainTab:CreateLabel("Şu Anki Durum: Bekleniyor...")
 local TurLabel = MainTab:CreateLabel("Tamamlanan Tur: 0")
+local YumurtaLabel = MainTab:CreateLabel("Toplam Yumurta: 0")
 local SureLabel = MainTab:CreateLabel("Mesai Süresi: 00:00:00")
 
 task.spawn(function()
@@ -242,16 +249,17 @@ task.spawn(function()
             local s = os.time() - baslangicZamani
             SureLabel:Set(string.format("Mesai Süresi: %02d:%02d:%02d", math.floor(s/3600), math.floor(s/60)%60, s%60))
             TurLabel:Set("Tamamlanan Tur: " .. tamamlananTur)
+            YumurtaLabel:Set("Toplam Yumurta: " .. toplamYumurta)
             DurumLabel:Set("Şu Anki Durum: " .. suAnkiDurum)
         end
         task.wait(1)
     end
 end)
 
--- TEST İÇİN 1 DAKİKALIK WEBHOOK DÖNGÜSÜ
+-- 1 DAKİKALIK WEBHOOK DÖNGÜSÜ
 task.spawn(function()
     while true do
-        task.wait(60) -- Her 60 saniyede bir (1 dakika)
+        task.wait(60)
         if webhookEnabled and running then
             sendWebhook("Dakikalık Otomatik Rapor")
         end
