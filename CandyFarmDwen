@@ -1,4 +1,17 @@
-local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+-- Rayfield Kütüphanesi Yükleme Denemesi
+local success, Rayfield = pcall(function()
+    return loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+end)
+
+if not success or not Rayfield then
+    warn("DwenSystem: Rayfield yuklenemedi! Link bozuk olabilir veya Executor desteklemiyor.")
+    -- Eğer kütüphane yüklenemezse kullanıcıya oyun içinden bildirim verelim (GUI olmasa da)
+    game:GetService("StarterGui"):SetCore("SendNotification", {
+        Title = "HATA!",
+        Text = "Rayfield Kütüphanesi Yüklenemedi!",
+        Duration = 10
+    })
+end
 
 -- ##################################################
 -- ⚠️ AYARLAR (WEBHOOK)
@@ -18,9 +31,10 @@ local suAnkiDurum = "🟢 Aktif - Bekleniyor"
 local oyuncuAdi = game.Players.LocalPlayer.Name
 local messageID = nil 
 
--- EVRENSEL REQUEST FONKSİYONU (Her Executor İçin)
+-- EVRENSEL REQUEST FONKSİYONU
 local function getRequestFunc()
-    return (syn and syn.request) or (http and http.request) or http_request or (fluxus and fluxus.request) or (getgenv and getgenv().request) or request
+    local req = (syn and syn.request) or (http and http.request) or http_request or (fluxus and fluxus.request) or (getgenv and getgenv().request) or request
+    return req
 end
 
 -- AKILLI WEBHOOK SİSTEMİ
