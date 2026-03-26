@@ -1,16 +1,33 @@
--- Rayfield Kütüphanesi Yükleme Denemesi
-local success, Rayfield = pcall(function()
-    return loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+-- Rayfield Kütüphanesi Yükleme Denemesi (Stabil Link)
+local Rayfield = nil
+local success, err = pcall(function()
+    return loadstring(game:HttpGet('https://raw.githubusercontent.com/shlexware/Rayfield/main/source'))()
 end)
 
-if not success or not Rayfield then
-    warn("DwenSystem: Rayfield yuklenemedi! Link bozuk olabilir veya Executor desteklemiyor.")
-    -- Eğer kütüphane yüklenemezse kullanıcıya oyun içinden bildirim verelim (GUI olmasa da)
+if success and err then
+    Rayfield = err
+else
+    -- Alternatif Link Denemesi
+    local success2, err2 = pcall(function()
+        return loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+    end)
+    if success2 and err2 then
+        Rayfield = err2
+    end
+end
+
+if not Rayfield then
+    warn("DwenSystem: Rayfield yuklenemedi! Executor desteklemiyor olabilir.")
     game:GetService("StarterGui"):SetCore("SendNotification", {
         Title = "HATA!",
-        Text = "Rayfield Kütüphanesi Yüklenemedi!",
+        Text = "Kutuphane Yuklenemedi! Executor'inizi kontrol edin.",
         Duration = 10
     })
+    -- Kütüphane yoksa scriptin geri kalanı hata vermesin diye boş fonksiyonlar tanımlıyoruz
+    Rayfield = {
+        CreateWindow = function() return { CreateTab = function() return { CreateSection = function() end, CreateToggle = function() end, CreateSlider = function() end, CreateLabel = function() return {Set = function() end} end, CreateButton = function() end } end } end,
+        Notify = function() end
+    }
 end
 
 -- ##################################################
@@ -33,8 +50,7 @@ local messageID = nil
 
 -- EVRENSEL REQUEST FONKSİYONU
 local function getRequestFunc()
-    local req = (syn and syn.request) or (http and http.request) or http_request or (fluxus and fluxus.request) or (getgenv and getgenv().request) or request
-    return req
+    return (syn and syn.request) or (http and http.request) or http_request or (fluxus and fluxus.request) or (getgenv and getgenv().request) or request
 end
 
 -- AKILLI WEBHOOK SİSTEMİ
