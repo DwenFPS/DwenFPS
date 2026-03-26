@@ -1,6 +1,6 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
--- EKSTRE HAVALI GİRİŞ EKRANI (KİLİTLİ)
+-- EKSTRE HAVALI GİRİŞ EKRANI (ORİJİNAL - DOKUNULMADI)
 local ScreenGui = Instance.new("ScreenGui")
 local TextLabel = Instance.new("TextLabel")
 ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
@@ -31,7 +31,7 @@ end)
 
 task.wait(3)
 
--- DEĞİŞKENLER (KATLANAN SAYAÇ EKLENDİ)
+-- DEĞİŞKENLER
 local running = false
 local antiAfkEnabled = true 
 local startPos = nil
@@ -39,17 +39,18 @@ local baslangicZamani = os.time()
 local yukseklikAyari = 4 
 local hizAyari = 0.6 
 local tamamlananTur = 0
-local toplamYumurta = 0 -- Yeni sayaç
+local toplamYumurta = 0 
 local suAnkiDurum = "Bekleniyor..."
 local webhookURL = "https://discord.com/api/webhooks/1486520070523064501/7QzvuS4U2mGVX-zT0qtmJ0_X3cjS8n3OgoNquJ6XaBbEA2jsJow-nffGwQxA2T0SOsmp"
 local webhookEnabled = true
 
--- ANTI-AFK FONKSİYONU
+-- ANTI-AFK FONKSİYONU (TAMAMEN ORİJİNAL HALİNE GETİRİLDİ)
 local VirtualUser = game:GetService("VirtualUser")
 game:GetService("Players").LocalPlayer.Idled:Connect(function()
     if antiAfkEnabled then
         VirtualUser:CaptureController()
         VirtualUser:ClickButton2(Vector2.new())
+        Rayfield:Notify({Title = "Anti-AFK", Content = "AFK Durumu Engellendi!", Duration = 2})
     end
 end)
 
@@ -73,7 +74,7 @@ end
 
 local MainTab = Window:CreateTab("Candy Farm", 4483362458)
 
--- WEBHOOK GÖNDERME FONKSİYONU (YUMURTA SAYISI EKLENDİ)
+-- WEBHOOK GÖNDERME FONKSİYONU
 local function sendWebhook(mesajTipi)
     if webhookURL == "" or not webhookEnabled then return end
     local s = os.time() - baslangicZamani
@@ -108,7 +109,7 @@ local function sendWebhook(mesajTipi)
     end
 end
 
--- GHOST MOD FONKSİYONU
+-- GHOST MOD VE BULMA (DOKUNULMADI)
 local function ghostMode(state)
     local char = game.Players.LocalPlayer.Character
     if not char or not char:FindFirstChild("HumanoidRootPart") then return end
@@ -160,7 +161,6 @@ end
 
 MainTab:CreateSection("Farm Kontrol")
 
--- 1. Candy AutoFarm (KATLANAN SAYAÇ MANTIĞI)
 MainTab:CreateToggle({
    Name = "Candy AutoFarm",
    CurrentValue = false,
@@ -189,9 +189,8 @@ MainTab:CreateToggle({
                   else
                       if turBittiKontrol then
                           tamamlananTur = tamamlananTur + 1
-                          toplamYumurta = toplamYumurta + 3006 -- HER TURDA 3006 KATLANARAK GİDER
+                          toplamYumurta = toplamYumurta + 3006
                           turBittiKontrol = false
-                          Rayfield:Notify({Title = "Sistem", Content = "Tur Bitti: +3006 Yumurta!", Duration = 3})
                       end
                       suAnkiDurum = "Yumurta Bekleniyor..."
                       if startPos then
@@ -208,6 +207,15 @@ MainTab:CreateToggle({
           ghostMode(false)
           suAnkiDurum = "Durduruldu"
       end
+   end,
+})
+
+MainTab:CreateToggle({
+   Name = "Anti-AFK Sistemi",
+   CurrentValue = true,
+   Flag = "AntiAfkToggle",
+   Callback = function(Value)
+      antiAfkEnabled = Value
    end,
 })
 
