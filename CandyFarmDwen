@@ -1,65 +1,31 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
--- #######################################################
--- AYARLARIN
--- #######################################################
-local reklamLinkim = "https://work.ink/2pU3/dwenfps" -- Reklam linkin
-local apiKodun = "51f4a5b1-3334-4ded-9805-af41a15c8b7a" -- Son görseldeki API Key'in
-
--- 1. ADIM: EKRANA "GET KEY" BUTONU EKLEME
-local ScreenGui = Instance.new("ScreenGui")
-local Button = Instance.new("TextButton")
-local UICorner = Instance.new("UICorner")
-
-ScreenGui.Name = "DwenGetKeyGui"
-ScreenGui.Parent = game.CoreGui
-ScreenGui.DisplayOrder = 999 
-
-Button.Name = "GetKeyButton"
-Button.Parent = ScreenGui
-Button.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-Button.Position = UDim2.new(0.5, -60, 0.5, 80) -- Rayfield'ın hemen altına gelecek
-Button.Size = UDim2.new(0, 120, 0, 35)
-Button.Font = Enum.Font.GothamBold
-Button.Text = "GET KEY"
-Button.TextColor3 = Color3.fromRGB(255, 255, 255)
-Button.TextSize = 14
-Button.AutoButtonColor = true
-
-UICorner.CornerRadius = UDim.new(0, 8)
-UICorner.Parent = Button
-
-Button.MouseButton1Click:Connect(function()
-    setclipboard(reklamLinkim)
-    Rayfield:Notify({Title = "BAŞARILI", Content = "Reklam linki panoya kopyalandı! Tarayıcına yapıştır.", Duration = 5})
+-- 1. ADIM: ANTİ-AFK SİSTEMİ (SCRIPT AÇILDIĞI AN AKTİF OLUR)
+local VirtualUser = game:GetService("VirtualUser")
+game:GetService("Players").LocalPlayer.Idled:Connect(function()
+    VirtualUser:CaptureController()
+    VirtualUser:ClickButton2(Vector2.new())
 end)
 
--- 2. ADIM: RAYFIELD ANA PENCERE VE KEY SİSTEMİ
+-- 2. ADIM: ANA PENCERE (KEY SİSTEMİ KAPALI)
 local Window = Rayfield:CreateWindow({
    Name = "DwenElChavo | DwenFPS Candy Farm",
-   LoadingTitle = "DwenFPS Sistemi Kontrol Ediliyor...",
+   LoadingTitle = "DwenFPS Yükleniyor...",
    LoadingSubtitle = "by DwenElChavo",
-   KeySystem = true,
-   KeySettings = {
-      Title = "DwenFPS | Key System",
-      Subtitle = "Anahtar 24 saat geçerlidir",
-      Note = "GET KEY butonuna bas, reklamı geç ve şifreyi al!",
-      FileName = "DwenKeyConfig",
-      SaveKey = true,
-      GrabKeyFromSite = false,
-      -- Work.ink API Doğrulama Linki:
-      Key = {"https://work.ink/api/v2/is_valid?token={TOKEN}&api_key=" .. apiKodun} 
-   }
+   ConfigurationSaving = {
+      Enabled = true,
+      FolderName = "DwenFPS_Config",
+      FileName = "CandyFarm"
+   },
+   KeySystem = false -- Key sistemini tamamen kapattım kral
 })
 
--- KEY DOĞRUYSA BUTONU SİL VE HİLEYİ AÇ
-ScreenGui:Destroy()
-
--- 3. ADIM: FARM ÖZELLİKLERİ
-local MainTab = Window:CreateTab("Candy Farm", 4483362458)
+-- 3. ADIM: CANDY FARM ÖZELLİKLERİ
+local MainTab = Window:CreateTab("Main Farm", 4483362458)
 local running = false
 local yukseklikAyari = 4 
 
+-- En yakın yumurtayı bulan fonksiyon
 local function enYakinYumurtayiBul()
     local char = game.Players.LocalPlayer.Character
     if not char or not char:FindFirstChild("HumanoidRootPart") then return nil end
@@ -78,6 +44,7 @@ local function enYakinYumurtayiBul()
     return enYakin
 end
 
+-- Farm Toggle (Aç/Kapat)
 MainTab:CreateToggle({
    Name = "Candy AutoFarm",
    CurrentValue = false,
@@ -99,6 +66,7 @@ MainTab:CreateToggle({
    end,
 })
 
+-- Uçuş Yüksekliği Ayarı
 MainTab:CreateSlider({
    Name = "Uçuş Yüksekliği",
    Range = {0, 10},
@@ -107,4 +75,9 @@ MainTab:CreateSlider({
    Callback = function(Value) yukseklikAyari = Value end,
 })
 
-Rayfield:Notify({Title = "Sistem Aktif", Content = "Anahtar onaylandı, iyi oyunlar kral!", Duration = 5})
+-- Bilgi Etiketleri
+MainTab:CreateSection("Sistem Durumu")
+MainTab:CreateLabel("Anti-AFK: Aktif ✅")
+MainTab:CreateLabel("DwenFPS Keyless Sürüm")
+
+Rayfield:Notify({Title = "Sistem Hazır", Content = "Hile başarıyla yüklendi, iyi oyunlar!", Duration = 5})
