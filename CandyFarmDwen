@@ -1,40 +1,9 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 -- ##################################################
--- ⚠️ AYARLAR (WEBHOOK GÖMÜLDÜ) ⚠️
+-- ⚠️ AYARLAR (WEBHOOK)
 local webhookURL = "https://discord.com/api/webhooks/1486520070523064501/7QzvuS4U2mGVX-zT0qtmJ0_X3cjS8n3OgoNquJ6XaBbEA2jsJow-nffGwQxA2T0SOsmp"
 -- ##################################################
-
--- EKSTRE HAVALI GİRİŞ EKRANI
-local ScreenGui = Instance.new("ScreenGui")
-local TextLabel = Instance.new("TextLabel")
-ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
-TextLabel.Parent = ScreenGui
-TextLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-TextLabel.BackgroundTransparency = 1.000
-TextLabel.Position = UDim2.new(0.5, -200, 0.5, -50)
-TextLabel.Size = UDim2.new(0, 400, 0, 100)
-TextLabel.Font = Enum.Font.SpecialElite
-TextLabel.Text = "DwenElChavo"
-TextLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-TextLabel.TextSize = 80
-TextLabel.TextStrokeTransparency = 0
-TextLabel.TextTransparency = 1
-
-task.spawn(function()
-    for i = 1, 0, -0.05 do
-        TextLabel.TextTransparency = i
-        task.wait(0.05)
-    end
-    task.wait(2)
-    for i = 0, 1, 0.05 do
-        TextLabel.TextTransparency = i
-        task.wait(0.05)
-    end
-    ScreenGui:Destroy()
-end)
-
-task.wait(3)
 
 -- DEĞİŞKENLER
 local running = false
@@ -47,9 +16,14 @@ local tamamlananTur = 0
 local toplamYumurta = 0
 local suAnkiDurum = "🟢 Aktif - Bekleniyor"
 local oyuncuAdi = game.Players.LocalPlayer.Name
-local messageID = nil -- Mesaj ID'sini otomatik kapacak
+local messageID = nil 
 
--- AKILLI WEBHOOK SİSTEMİ (MESAJ ATAR VE KENDİSİNİ GÜNCELLER)
+-- EVRENSEL REQUEST FONKSİYONU (Her Executor İçin)
+local function getRequestFunc()
+    return (syn and syn.request) or (http and http.request) or http_request or (fluxus and fluxus.request) or (getgenv and getgenv().request) or request
+end
+
+-- AKILLI WEBHOOK SİSTEMİ
 local function updateDiscordStatus()
     local s = os.time() - baslangicZamani
     local sureText = string.format("%02d:%02d:%02d", math.floor(s/3600), math.floor(s/60)%60, s%60)
@@ -57,8 +31,8 @@ local function updateDiscordStatus()
     local data = {
         ["embeds"] = {{
             ["title"] = "🚀 DWEN SYSTEM - CANLI ÇİFTLİK TAKİBİ",
-            ["description"] = "Bu rapor her 30 saniyede bir otomatik güncellenir.",
-            ["color"] = 16711935, -- Mor/Pembe tonu
+            ["description"] = "Bu rapor anlık olarak güncellenmektedir.",
+            ["color"] = 16711935,
             ["fields"] = {
                 {["name"] = "👤 Oyuncu Hesabı", ["value"] = "```" .. oyuncuAdi .. "```", ["inline"] = false},
                 {["name"] = "📊 İstatistikler", ["value"] = string.format("
